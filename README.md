@@ -7,3 +7,7 @@ In this project, we implement four types of thread schedulers for a uni-processo
 4. Multi Level Feedback Queue (MLFQ) - with preemption and aging
 
 The project report can be viewed here: http://bit.do/project1-report
+
+### Note about Tests
+The test files inside the Test folder are compressed. That's because `git` doesn't handle those files
+very well. To use, simply download and uncompress. Do not push the uncompressed files back to the repository.  
