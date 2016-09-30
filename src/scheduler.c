@@ -28,19 +28,29 @@ float total_wait_time(int tid);
 #define PBS     2
 #define MLFQ    3
 
+typedef struct Node Node_t; 
+
+struct Node {
+	
+	int tid;
+	Node_t* link;
+};
+
 
 void init_scheduler( int sched_type ) {
-/**
 
-	Fill your code here
-*/
+    // head pointers for the three lists we need.
+    Node_t* ready   = NULL; 
+    Node_t* waiting = NULL; 
+    Node_t* blocked = NULL; 
+
 }
 
 int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
 /**
 
 	Fill your code here
-*/
+*/ 
 
 }
 
