@@ -39,14 +39,15 @@ struct Node {
 
 void init_scheduler( int sched_type ) {
 
-    
+	
 }
 
 int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
-// head pointers for the three lists we need.
-    Node_t* ready   = NULL; 
-    Node_t* waiting = NULL; 
-    Node_t* blocked = NULL; 
+    int globalTime = 0;
+    Node_t* ready   = NULL;
+    
+
+    return globalTime;
 }
 
 int num_preemeptions(int tid){
@@ -55,7 +56,7 @@ int num_preemeptions(int tid){
 	Fill your code here
 */
 
-  return -1;
+	return -1;
 }
 
 float total_wait_time(int tid){
