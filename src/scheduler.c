@@ -18,6 +18,12 @@
 #include <math.h>
 #include <pthread.h>
 
+typedef struct Node Node_t; 
+struct Node {
+    int tid;
+    Node_t* link;
+};
+
 void init_scheduler( int sched_type );
 int schedule_me( float currentTime, int tid, int remainingTime, int tprio );
 int num_preemeptions(int tid);
@@ -33,26 +39,19 @@ void insert_to_list(int tid, Node_t* head_addr);
 
 int schedulerType = 0;
 
-typedef struct Node Node_t; 
-
-struct Node {
-    int tid;
-    Node_t* link;
-};
-
-
 void init_scheduler( int sched_type ) {
     schedulerType = sched_type;
 }
 
 int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
     int globalTime = 0;
-    Node_t* ready   = NULL;
+    Node_t* ready   = NULL; 
 
-    insert_to_list(tid, ready);
+    insert_to_list(tid, ready); //may need a mutual exclusion on this one. 
 
     if (schedulerType == FCFS) {
-
+        while(ready -> tid != tid);
+        globalTime = ceil(currentTime); //rounds up to greater int value.
     }
 
     return globalTime;
@@ -79,7 +78,7 @@ float total_wait_time(int tid){
 
 /* helper functions */
 
-// Insert elements to the linked-list
+// Insert elements to the end of linked-list
 void insert_to_list(int tid, Node_t* head_addr) {
     Node_t* new_node_address = NULL;
     Node_t* current = head_addr;
