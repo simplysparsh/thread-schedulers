@@ -23,6 +23,9 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio );
 int num_preemeptions(int tid);
 float total_wait_time(int tid);
 
+//Declaration for helper methods
+void insert_to_list(int tid, Node_t* head_addr);
+
 #define FCFS    0
 #define SRTF    1
 #define PBS     2
@@ -33,7 +36,6 @@ int schedulerType = 0;
 typedef struct Node Node_t; 
 
 struct Node {
-    
     int tid;
     Node_t* link;
 };
@@ -47,6 +49,8 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
     int globalTime = 0;
     Node_t* ready   = NULL;
 
+    insert_to_list(tid, ready);
+
     if (schedulerType == FCFS) {
 
     }
@@ -55,7 +59,7 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
 }
 
 int num_preemeptions(int tid){
-/**
+/*
 
     Fill your code here
 */
@@ -75,9 +79,8 @@ float total_wait_time(int tid){
 
 /* helper functions */
 
-// Insert data into linked-list
+// Insert elements to the linked-list
 void insert_to_list(int tid, Node_t* head_addr) {
-
     Node_t* new_node_address = NULL;
     Node_t* current = head_addr;
 
