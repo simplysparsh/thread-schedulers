@@ -3,8 +3,8 @@
  * File             : scheduler.c
  * Description      : This is a stub to implement all your scheduling schemes
  *
- * Author(s)        : @author
- * Last Modified    : @date
+ * Author(s)        : Sparsh Saxena | Mahdi Chaker  
+ * Last Modified    : October 11, 2016
 */
 
 // Include Files
@@ -21,6 +21,7 @@
 typedef struct Node Node_t; 
 struct Node {
     int tid;
+    int tprio;
     Node_t* link;
 };
 
@@ -30,7 +31,7 @@ int num_preemeptions(int tid);
 float total_wait_time(int tid);
 
 //Declaration for helper methods
-void insert_to_list(int tid, Node_t* head_addr);
+void insert_to_list(int tid, int tprio, Node_t* head_addr);
 
 #define FCFS    0
 #define SRTF    1
@@ -38,6 +39,7 @@ void insert_to_list(int tid, Node_t* head_addr);
 #define MLFQ    3
 
 int schedulerType = 0;
+pthread_mutex_t lock;
 
 void init_scheduler( int sched_type ) {
     schedulerType = sched_type;
@@ -47,11 +49,32 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
     int globalTime = 0;
     Node_t* ready   = NULL; 
 
-    insert_to_list(tid, ready); //may need a mutual exclusion on this one. 
+    
+    /* Lock a mutex prior to updating the 
+    ready list and unlock it upon updating. */
+    pthread_mutex_lock (&lock);
+        insert_to_list(tid, tprio, ready);
+    pthread_mutex_unlock (&lock);
 
-    if (schedulerType == FCFS) {
-        while(ready -> tid != tid);
-        globalTime = ceil(currentTime); //rounds up to greater int value.
+
+    switch (schedulerType) {
+
+        case FCFS:
+            while(ready -> tid != tid);
+            globalTime = ceil(currentTime); //rounds up to greater int value.
+            break;
+
+        case SRTF:
+            // code
+            break;
+
+        case PBS:
+            // code
+            break;
+
+        case MLFQ:
+            // code
+            break;
     }
 
     return globalTime;
@@ -79,7 +102,7 @@ float total_wait_time(int tid){
 /* helper functions */
 
 // Insert elements to the end of linked-list
-void insert_to_list(int tid, Node_t* head_addr) {
+void insert_to_list(int tid, int tprio, Node_t* head_addr) {
     Node_t* new_node_address = NULL;
     Node_t* current = head_addr;
 
