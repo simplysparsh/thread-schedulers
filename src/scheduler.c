@@ -37,6 +37,7 @@ float total_wait_time(int tid);
 
 //Declaration for helper methods
 void insert_to_list(int tid, int tprio, Node_t* head_addr);
+Node_t* search_list(int tid, Node_t* head_addr);
 
 Node_t* ready   = NULL; 
 
@@ -128,6 +129,7 @@ void insert_to_list(int tid, int tprio, Node_t* head_addr) {
     }
 }
 
+// Search thread in the linked-list
 Node_t* search_list(int tid, Node_t* head_addr) {
     Node_t* current = head_addr;
 
