@@ -24,10 +24,10 @@ struct Node {
     int tprio;
     float currentTime;
     int remainingTime;
-
-    //condition variable
     Node_t* link;
 
+    pthread_cond_t my_turn;
+    
 };
 
 void init_scheduler( int sched_type );
@@ -36,34 +36,29 @@ int num_preemeptions(int tid);
 float total_wait_time(int tid);
 
 //Declaration for helper methods
-void insert_to_list(int tid, int tprio, Node_t* head_addr);
+void insert_to_list(float currentTime, int tid, int remainingTime, int tprio, Node_t* head_addr);
 Node_t* search_list(int tid, Node_t* head_addr);
-
-Node_t* ready   = NULL; 
 
 #define FCFS    0
 #define SRTF    1
 #define PBS     2
 #define MLFQ    3
 
+Node_t* ready   = NULL; 
 int schedulerType = 0;
-pthread_mutex_t lock;
+int globalTime = 0;
+
+//Global mutex locks
+pthread_mutex_t scheduler_lock;
 
 void init_scheduler( int sched_type ) {
     schedulerType = sched_type;
 }
 
 int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
-    int globalTime = 0;
+    pthread_mutex_lock (&scheduler_lock);
     
-
-    pthread_mutex_lock (&lock);
-
-    /* Lock a mutex prior to updating the 
-    ready list and unlock it upon updating. */
-    
-        insert_to_list(tid, tprio, ready);
-    pthread_mutex_unlock (&lock);
+    insert_to_list(currentTime, tid, remainingTime, tprio, ready);
 
     switch (schedulerType) {
 
@@ -85,6 +80,7 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
             break;
     }
 
+    pthread_mutex_unlock (&scheduler_lock);
     return globalTime;
 }
 
@@ -110,13 +106,19 @@ float total_wait_time(int tid){
 /* helper functions */
 
 // Insert elements to the end of linked-list
-void insert_to_list(int tid, int tprio, Node_t* head_addr) {
+void insert_to_list(float currentTime, int tid, int remainingTime, int tprio, Node_t* head_addr) {
     Node_t* new_node_address = NULL;
     Node_t* current = head_addr;
 
+
+    //create the thread node and initialize
     new_node_address = malloc(sizeof(Node_t));
     new_node_address -> tid = tid;
+    new_node_address -> currentTime = currentTime;
+    new_node_address -> remainingTime = remainingTime;
+    new_node_address -> tprio = tprio;
     new_node_address -> link = NULL;
+    pthread_cond_init (&(new_node_address -> my_turn), NULL);
 
     if (head_addr == NULL) {
       head_addr = new_node_address;
@@ -142,7 +144,6 @@ Node_t* search_list(int tid, Node_t* head_addr) {
             current = current -> link;
         }
     }
-
     return NULL;
 }
     
