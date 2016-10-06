@@ -20,11 +20,11 @@
 
 typedef struct Node Node_t; 
 struct Node {
-    int tid;
-    int tprio;
-    float currentTime;
-    int remainingTime;
-    Node_t* link;
+    int tid;            // thread id
+    int tprio;          // thread priority
+    float currentTime;  // time that a thread arrives
+    int remainingTime;  // time a thread needs in order to finish
+    Node_t* link;       // pointer to another Node
 
     pthread_cond_t my_turn;
     
