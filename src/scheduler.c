@@ -36,8 +36,8 @@ int num_preemeptions(int tid);
 float total_wait_time(int tid);
 
 //Declaration for helper methods
-Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio, Node_t* head_addr);
-Node_t* search_list(int tid, Node_t* head_addr);
+Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio);
+Node_t* search_list(int tid);
 Node_t* create_new_thread_node(float currentTime, int tid, int remainingTime, int tprio);
 void delete_first_node(Node_t* node_address);
 
@@ -48,7 +48,7 @@ void delete_first_node(Node_t* node_address);
 
 Node_t* ready   = NULL; 
 int schedulerType = 0;
-int globalTime = 0;
+int globalTime = -1;
 
 //Global mutex locks
 pthread_mutex_t scheduler_lock;
@@ -64,7 +64,7 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
     pthread_mutex_lock (&scheduler_lock);
 
     Node_t* current_thread_node = NULL;
-    current_thread_node = insert_to_list(currentTime, tid, remainingTime, tprio, ready);
+    current_thread_node = insert_to_list(currentTime, tid, remainingTime, tprio);
 
     switch (schedulerType) {
 
@@ -72,13 +72,12 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
             while(ready -> tid != tid) 
                 pthread_cond_wait(&(current_thread_node->my_turn), &scheduler_lock);
 
-            if (remainingTime != 0) {
-                globalTime = ceil(currentTime); //rounds up to greater int value.
-            } 
-            else {
+            if (remainingTime == 0) {
                 delete_first_node(current_thread_node);
-                pthread_cond_signal(&(ready->my_turn));
-            }
+                if(ready != NULL) 
+                    pthread_cond_signal(&(ready->my_turn));
+                globalTime--;
+            } 
             break;
 
         case SRTF:
@@ -93,7 +92,7 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
             // code
             break;
     }
-
+    globalTime ++;
     pthread_mutex_unlock (&scheduler_lock);
     return globalTime;
 }
@@ -121,13 +120,13 @@ float total_wait_time(int tid){
 
 // Check if element already present in list. If yes, update it and return address. 
 // Else, insert element to the end of linked-list and return its address
-Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio, Node_t* head_addr) {
+Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio) {
     Node_t* current = NULL;
     Node_t* new_node_address = NULL;
     Node_t* old_thread_address = NULL;
 
-    current = head_addr;
-    old_thread_address = search_list(tid, head_addr);
+    current = ready;
+    old_thread_address = search_list(tid);
 
     if (old_thread_address != NULL) {
         old_thread_address -> currentTime = currentTime;
@@ -136,8 +135,8 @@ Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio,
     } else {
         new_node_address = create_new_thread_node(currentTime, tid, remainingTime, tprio);
 
-        if (head_addr == NULL) {
-          head_addr = new_node_address;
+        if (ready == NULL) {
+          ready = new_node_address;
         }
         else {
           while(current -> link != NULL) {
@@ -166,9 +165,9 @@ Node_t* create_new_thread_node(float currentTime, int tid, int remainingTime, in
 
 
 // Search thread in the linked-list
-Node_t* search_list(int tid, Node_t* head_addr) {
+Node_t* search_list(int tid) {
     Node_t* current = NULL;
-    current = head_addr;
+    current = ready;
 
     while(current != NULL) {
         if (current -> tid == tid) {
