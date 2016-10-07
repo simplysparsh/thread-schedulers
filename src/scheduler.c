@@ -76,7 +76,7 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
                 globalTime = ceil(currentTime); //rounds up to greater int value.
             } 
             else {
-                delete_first_node(current_thread_node, ready);
+                delete_first_node(current_thread_node);
                 pthread_cond_signal(&(ready->my_turn));
             }
             break;
@@ -125,8 +125,8 @@ Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio,
     Node_t* new_node_address = NULL;
     Node_t* old_thread_address = NULL;
 
-    Node_t* current = head_addr;
-    Node_t* old_thread_address = search_list(tid, head_addr);
+    current = head_addr;
+    old_thread_address = search_list(tid, head_addr);
 
     if (old_thread_address != NULL) {
         old_thread_address -> currentTime = currentTime;
@@ -167,7 +167,7 @@ Node_t* create_new_thread_node(float currentTime, int tid, int remainingTime, in
 // Search thread in the linked-list
 Node_t* search_list(int tid, Node_t* head_addr) {
     Node_t* current = NULL;
-    Node_t* current = head_addr;
+    current = head_addr;
 
     while(current != NULL) {
         if (current -> tid == tid) {
