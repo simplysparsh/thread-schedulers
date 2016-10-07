@@ -36,7 +36,7 @@ int num_preemeptions(int tid);
 float total_wait_time(int tid);
 
 //Declaration for helper methods
-void insert_to_list(Node_t* new_node_address, Node_t* head_addr);
+Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio, Node_t* head_addr);
 Node_t* search_list(int tid, Node_t* head_addr);
 Node_t* create_new_thread_node(float currentTime, int tid, int remainingTime, int tprio);
 
@@ -63,10 +63,7 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
     pthread_mutex_lock (&scheduler_lock);
 
     Node_t* current_thread_node = NULL;
-
-    current_thread_node = create_new_thread_node(currentTime, tid, remainingTime, tprio);
-    
-    insert_to_list(current_thread_node, ready);
+    current_thread_node = insert_to_list(currentTime, tid, remainingTime, tprio, ready);
 
     switch (schedulerType) {
 
@@ -114,19 +111,30 @@ float total_wait_time(int tid){
 
 /* helper functions */
 
-// Insert elements to the end of linked-list
-void insert_to_list(Node_t* new_node_address, Node_t* head_addr) {
+// Insert element to the end of linked-list and return its address
+Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio, Node_t* head_addr) {
     Node_t* current = head_addr;
+    Node_t* new_node_address = NULL;
+    Node_t* old_thread_address = search_list(tid, head_addr);
 
-    if (head_addr == NULL) {
-      head_addr = new_node_address;
-    }
-    else {
-      while(current -> link != NULL) {
-       current = current -> link;
-      }
-      current -> link = new_node_address;
-    }
+    if (old_thread_address != NULL) {
+        old_thread_address -> currentTime = currentTime;
+        old_thread_address -> remainingTime = remainingTime;
+        return old_thread_address;
+    } else {
+        new_node_address = create_new_thread_node(currentTime, tid, remainingTime, tprio);
+
+        if (head_addr == NULL) {
+          head_addr = new_node_address;
+        }
+        else {
+          while(current -> link != NULL) {
+           current = current -> link;
+          }
+          current -> link = new_node_address;
+        }
+        return new_node_address;
+    } 
 }
 
 Node_t* create_new_thread_node(float currentTime, int tid, int remainingTime, int tprio) {
@@ -150,7 +158,6 @@ Node_t* search_list(int tid, Node_t* head_addr) {
     Node_t* current = head_addr;
 
     while(current != NULL) {
-
         if (current -> tid == tid) {
             return current;
         } 
