@@ -119,7 +119,8 @@ float total_wait_time(int tid){
 
 /* helper functions */
 
-// Insert element to the end of linked-list and return its address
+// Check if element already present in list. If yes, update it and return address. 
+// Else, insert element to the end of linked-list and return its address
 Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio, Node_t* head_addr) {
     Node_t* current = NULL;
     Node_t* new_node_address = NULL;
