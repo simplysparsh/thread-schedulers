@@ -39,6 +39,7 @@ float total_wait_time(int tid);
 Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio, Node_t* head_addr);
 Node_t* search_list(int tid, Node_t* head_addr);
 Node_t* create_new_thread_node(float currentTime, int tid, int remainingTime, int tprio);
+void delete_first_node(Node_t* node_address, Node_t* head_addr);
 
 #define FCFS    0
 #define SRTF    1
@@ -70,7 +71,14 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
         case FCFS:
             while(ready -> tid != tid) 
                 pthread_cond_wait(&(current_thread_node->my_turn), &scheduler_lock);
-            globalTime = ceil(currentTime); //rounds up to greater int value.
+
+            if (remainingTime != 0) {
+                globalTime = ceil(currentTime); //rounds up to greater int value.
+            } 
+            else {
+                delete_first_node(current_thread_node, ready);
+                pthread_cond_signal(&(ready->my_turn));
+            }
             break;
 
         case SRTF:
@@ -166,6 +174,11 @@ Node_t* search_list(int tid, Node_t* head_addr) {
         }
     }
     return NULL;
+}
+
+void delete_first_node(Node_t* node_address, Node_t* head_addr) {
+    head_addr = head_addr -> link;
+    free(node_address);
 }
     
 
