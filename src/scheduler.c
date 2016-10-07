@@ -39,7 +39,7 @@ float total_wait_time(int tid);
 Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio, Node_t* head_addr);
 Node_t* search_list(int tid, Node_t* head_addr);
 Node_t* create_new_thread_node(float currentTime, int tid, int remainingTime, int tprio);
-void delete_first_node(Node_t* node_address, Node_t* head_addr);
+void delete_first_node(Node_t* node_address);
 
 #define FCFS    0
 #define SRTF    1
@@ -121,8 +121,11 @@ float total_wait_time(int tid){
 
 // Insert element to the end of linked-list and return its address
 Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio, Node_t* head_addr) {
-    Node_t* current = head_addr;
+    Node_t* current = NULL;
     Node_t* new_node_address = NULL;
+    Node_t* old_thread_address = NULL;
+
+    Node_t* current = head_addr;
     Node_t* old_thread_address = search_list(tid, head_addr);
 
     if (old_thread_address != NULL) {
@@ -163,6 +166,7 @@ Node_t* create_new_thread_node(float currentTime, int tid, int remainingTime, in
 
 // Search thread in the linked-list
 Node_t* search_list(int tid, Node_t* head_addr) {
+    Node_t* current = NULL;
     Node_t* current = head_addr;
 
     while(current != NULL) {
@@ -176,8 +180,8 @@ Node_t* search_list(int tid, Node_t* head_addr) {
     return NULL;
 }
 
-void delete_first_node(Node_t* node_address, Node_t* head_addr) {
-    head_addr = head_addr -> link;
+void delete_first_node(Node_t* node_address) {
+    ready = ready -> link;
     free(node_address);
 }
     
