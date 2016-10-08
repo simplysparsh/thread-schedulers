@@ -35,6 +35,9 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio );
 int num_preemeptions(int tid);
 float total_wait_time(int tid);
 
+//Declaration for Scheduler Functions
+void schedule_with_FCFS(Node_t* current_thread_node, int remainingTime);
+
 //Declaration for helper methods
 Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio);
 Node_t* search_list(int tid);
@@ -68,16 +71,8 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
 
     switch (schedulerType) {
 
-        case FCFS:
-            while(ready -> tid != tid) 
-                pthread_cond_wait(&(current_thread_node->my_turn), &scheduler_lock);
-
-            if (remainingTime == 0) {
-                delete_first_node(current_thread_node);
-                if(ready != NULL) 
-                    pthread_cond_signal(&(ready->my_turn));
-                globalTime--;
-            } 
+        case FCFS: //current_thread_node, remainingTime
+            schedule_with_FCFS(current_thread_node, remainingTime);
             break;
 
         case SRTF:
@@ -113,6 +108,20 @@ float total_wait_time(int tid){
 */
 
   return -0.1;
+}
+
+/* Scheduler Functions */
+
+void schedule_with_FCFS(Node_t* current_thread_node, int remainingTime ) {
+    while(ready -> tid != current_thread_node -> tid) 
+        pthread_cond_wait(&(current_thread_node->my_turn), &scheduler_lock);
+
+    if (remainingTime == 0) {
+        delete_first_node(current_thread_node);
+        if(ready != NULL) 
+            pthread_cond_signal(&(ready->my_turn));
+        globalTime--;
+    } 
 }
 
 
