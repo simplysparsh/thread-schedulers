@@ -69,6 +69,7 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
 
         case PBS:
             // code
+            schedule_with_FCFS(current_thread_node, remainingTime);
             break;
 
         case MLFQ:
@@ -163,27 +164,27 @@ void insert_per_fcfs(Node_t* new_node_address) {
 //Insert node such that they are always
 //in order of priority or currentTime
 void insert_per_pbs(Node_t* new_node) {
-    Node_t* current = NULL;
-    Node_t* previous = NULL;
-    current = ready;
+    Node_t* curr = NULL;
+    Node_t* prev = NULL;
+    curr = ready;
 
-    while(current -> tprio < new_node -> tprio) {
-        previous = current;
-        current = current -> link;
+    while(curr -> tprio < new_node -> tprio) {
+        prev = curr;
+        curr = curr -> link;
     }
 
-    if(current -> currentTime < new_node -> currentTime) {
-        while(current -> tprio == (current -> link) -> tprio) {
-            if(new_node -> currentTime <= (current -> link) -> currentTime)
+    if(curr -> currentTime < new_node -> currentTime) {
+        while(curr -> link != NULL && curr -> tprio == (curr -> link) -> tprio) {
+            if(new_node -> currentTime <= (curr -> link) -> currentTime)
                 break;
-            current = current -> link;
+            curr = curr -> link;
         }
-        new_node -> link = current -> link;
-        current -> link = new_node;
+        new_node -> link = curr -> link;
+        curr -> link = new_node;
     } 
     else {
-        new_node -> link = current;
-        previous -> link = new_node;
+        new_node -> link = curr;
+        prev -> link = new_node;
     }
 }
 
