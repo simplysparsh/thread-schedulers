@@ -1,11 +1,11 @@
-/**
+/****************************************************************************
  * 
- * File             : scheduler.h
+ * File             : scheduler.c
  * Description      : Declarations for functions in scheduler.c
+ *
  * Author(s)        : Sparsh Saxena | Mahdi Chaker  
  * Last Modified    : October 11, 2016
-*/
-
+*****************************************************************************/
 
 void init_scheduler( int sched_type );
 int schedule_me( float currentTime, int tid, int remainingTime, int tprio );
