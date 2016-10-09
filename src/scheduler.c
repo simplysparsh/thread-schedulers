@@ -41,6 +41,8 @@ void schedule_with_FCFS(Node_t* current_thread_node, int remainingTime);
 //Declaration for helper methods
 Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio);
 void insert_per_fcfs(Node_t* new_node_address);
+void insert_per_pbs(Node_t* new_node);
+
 Node_t* search_list(int tid);
 Node_t* create_new_thread_node(float currentTime, int tid, int remainingTime, int tprio);
 void delete_first_node(Node_t* node_address);
@@ -154,7 +156,7 @@ Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio)
                   insert_per_fcfs(new_node_address);
                   break;
                 case PBS:
-                  //code
+                  insert_per_pbs(new_node_address);
                   break;  
             }
         }
@@ -162,6 +164,7 @@ Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio)
     } 
 }
 
+//Simply add node to the end of the list
 void insert_per_fcfs(Node_t* new_node_address) {
     Node_t* current = NULL;
     current = ready;
@@ -170,6 +173,33 @@ void insert_per_fcfs(Node_t* new_node_address) {
         current = current -> link;
     }
     current -> link = new_node_address;
+}
+
+//Insert node such that they are always
+//in order of priority or currentTime
+void insert_per_pbs(Node_t* new_node) {
+    Node_t* current = NULL;
+    Node_t* previous = NULL;
+    current = ready;
+
+    while(current -> tprio < new_node -> tprio) {
+        previous = current;
+        current = current -> link;
+    }
+
+    if(current -> currentTime < new_node -> currentTime) {
+        while(current -> tprio == (current -> link) -> tprio) {
+            if(new_node -> currentTime <= (current -> link) -> currentTime)
+                break;
+            current = current -> link;
+        }
+        new_node -> link = current -> link;
+        current -> link = new_node;
+    } 
+    else {
+        new_node -> link = current;
+        previous -> link = new_node;
+    }
 }
 
 Node_t* create_new_thread_node(float currentTime, int tid, int remainingTime, int tprio) {
