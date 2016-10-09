@@ -40,6 +40,7 @@ void schedule_with_FCFS(Node_t* current_thread_node, int remainingTime);
 
 //Declaration for helper methods
 Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio);
+void insert_per_fcfs(Node_t* new_node_address);
 Node_t* search_list(int tid);
 Node_t* create_new_thread_node(float currentTime, int tid, int remainingTime, int tprio);
 void delete_first_node(Node_t* node_address);
@@ -148,13 +149,27 @@ Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio)
           ready = new_node_address;
         }
         else {
-          while(current -> link != NULL) {
-           current = current -> link;
-          }
-          current -> link = new_node_address;
+            switch (schedulerType) {
+                case FCFS:
+                  insert_per_fcfs(new_node_address);
+                  break;
+                case PBS:
+                  //code
+                  break;  
+            }
         }
         return new_node_address;
     } 
+}
+
+void insert_per_fcfs(Node_t* new_node_address) {
+    Node_t* current = NULL;
+    current = ready;
+
+    while(current -> link != NULL) {
+        current = current -> link;
+    }
+    current -> link = new_node_address;
 }
 
 Node_t* create_new_thread_node(float currentTime, int tid, int remainingTime, int tprio) {
