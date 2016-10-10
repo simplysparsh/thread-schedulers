@@ -13,7 +13,7 @@ int num_preemeptions(int tid);
 float total_wait_time(int tid);
 
 //Declaration for Scheduler Functions
-void schedule_with_FCFS(Node_t* current_thread_node, int remainingTime);
+void schedule_with_FCFS_or_PBS(Node_t* current_thread_node, int remainingTime);
 
 //Declaration for helper methods
 Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio);

@@ -55,21 +55,22 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
     pthread_mutex_lock (&scheduler_lock);
 
     Node_t* current_thread_node = NULL;
+
+    //Insert elements as per the kind of scheduler
     current_thread_node = insert_to_list(currentTime, tid, remainingTime, tprio);
 
     switch (schedulerType) {
 
-        case FCFS: //current_thread_node, remainingTime
-            schedule_with_FCFS(current_thread_node, remainingTime);
+        case FCFS:
+            schedule_with_FCFS_or_PBS(current_thread_node, remainingTime);
+            break;
+
+        case PBS:
+            schedule_with_FCFS_or_PBS(current_thread_node, remainingTime);   
             break;
 
         case SRTF:
             // code
-            break;
-
-        case PBS:
-            // code
-            schedule_with_FCFS(current_thread_node, remainingTime);
             break;
 
         case MLFQ:
@@ -81,30 +82,29 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
     return globalTime;
 }
 
-int num_preemeptions(int tid){
+int num_preemeptions(int tid) {
 /*
-
     Fill your code here
 */
-
     return -1;
 }
 
-float total_wait_time(int tid){
-/**
-
+float total_wait_time(int tid) {
+/*
     Fill your code here
 */
-
-  return -0.1;
+    return -0.1;
 }
 
 /* Scheduler Functions */
 
-void schedule_with_FCFS(Node_t* current_thread_node, int remainingTime ) {
+void schedule_with_FCFS_or_PBS(Node_t* current_thread_node, int remainingTime ) {
+
+    //If the current thread is not the first in queue, then block it.
     while(ready -> tid != current_thread_node -> tid) 
         pthread_cond_wait(&(current_thread_node->my_turn), &scheduler_lock);
 
+    //Unlock the next thread if first one is complete.
     if (remainingTime == 0) {
         delete_first_node(current_thread_node);
         if(ready != NULL) 
@@ -112,7 +112,6 @@ void schedule_with_FCFS(Node_t* current_thread_node, int remainingTime ) {
         globalTime--;
     } 
 }
-
 
 /* helper functions */
 
@@ -124,13 +123,17 @@ Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio)
     Node_t* old_thread_address = NULL;
 
     current = ready;
+
+    //Get the address of the thread if it already exists in the queue.
     old_thread_address = search_list(tid);
 
+    //Update the thread value if it already exists in the queue.
     if (old_thread_address != NULL) {
         old_thread_address -> currentTime = currentTime;
         old_thread_address -> remainingTime = remainingTime;
         return old_thread_address;
     } else {
+        //If it's a new thread, add it to the queue. 
         new_node_address = create_new_thread_node(currentTime, tid, remainingTime, tprio);
 
         if (ready == NULL) {
@@ -139,7 +142,7 @@ Node_t* insert_to_list(float currentTime, int tid, int remainingTime, int tprio)
         else {
             switch (schedulerType) {
                 case FCFS:
-                  insert_per_fcfs(new_node_address);
+                  insert_per_fcfs(new_node_address); 
                   break;
                 case PBS:
                   insert_per_pbs(new_node_address);
@@ -168,23 +171,31 @@ void insert_per_pbs(Node_t* new_node) {
     Node_t* prev = NULL;
     curr = ready;
 
-    while(curr -> tprio < new_node -> tprio) {
-        prev = curr;
-        curr = curr -> link;
-    }
-
-    if(curr -> currentTime < new_node -> currentTime) {
-        while(curr -> link != NULL && curr -> tprio == (curr -> link) -> tprio) {
-            if(new_node -> currentTime <= (curr -> link) -> currentTime)
-                break;
-            curr = curr -> link;
-        }
-        new_node -> link = curr -> link;
-        curr -> link = new_node;
+    if(ready -> tprio > new_node -> tprio) {
+        new_node -> link = ready;
+        ready = new_node;
     } 
     else {
-        new_node -> link = curr;
-        prev -> link = new_node;
+
+        while(curr != NULL && (curr -> tprio < new_node -> tprio)) {
+            prev = curr;
+            curr = curr -> link;
+        }
+
+        if(curr != NULL && (curr -> currentTime < new_node -> currentTime)) {
+
+            while(curr -> link != NULL && curr -> tprio == (curr -> link) -> tprio) {
+                if(new_node -> currentTime <= (curr -> link) -> currentTime)
+                    break;
+                curr = curr -> link;
+            }
+            new_node -> link = curr -> link;
+            curr -> link = new_node;
+        } 
+        else {
+            new_node -> link = curr;
+            prev -> link = new_node;
+        }
     }
 }
 
@@ -203,7 +214,6 @@ Node_t* create_new_thread_node(float currentTime, int tid, int remainingTime, in
     return new_node_address;
 }
 
-
 // Search thread in the linked-list
 Node_t* search_list(int tid) {
     Node_t* current = NULL;
@@ -220,6 +230,7 @@ Node_t* search_list(int tid) {
     return NULL;
 }
 
+// Delete the first node in the linked-list
 void delete_first_node(Node_t* node_address) {
     ready = ready -> link;
     free(node_address);
