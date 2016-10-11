@@ -175,21 +175,10 @@ thread_info_t* lrq_get( float cur_time, int t_id, int remain_time, int t_prio ) 
 
 // add a thread info struct to a linear ready queue
 thread_info_t* lrq_insert( float cur_time, int t_id, int remain_time, int t_prio ) {
-    thread_info_t* added_thread_info    = NULL;
-
-    // if there is nothing in the queue, add the first item there
-    if ( linear_ready_queue == NULL ) {
-        added_thread_info   = linear_ready_queue;
-    } else {
-        while ( (added_thread_info -> next) != NULL ) {
-            lrq_tail    = (added_thread_info -> next);
-        }
-
-        added_thread_info   = (lrq_tail -> next);
-    }
+    thread_info_t* added_thread_info;
 
     // place a new thread info struct in memory and fill its values
-    added_thread_info   = malloc( sizeof( thread_info_t ) );
+    added_thread_info                       = malloc( sizeof( thread_info_t ) );
     added_thread_info -> thread_id          = t_id;
     added_thread_info -> arrival_time       = cur_time;
     added_thread_info -> remaining_time     = remain_time;
@@ -197,6 +186,15 @@ thread_info_t* lrq_insert( float cur_time, int t_id, int remain_time, int t_prio
     added_thread_info -> next               = NULL;
 
     pthread_cond_init( &(added_thread_info -> turn_cond), NULL );
+
+    // if there is nothing in the queue, add the first item there
+    if ( linear_ready_queue == NULL ) {
+        linear_ready_queue  = added_thread_info;
+    } else {
+        lrq_tail -> next    = added_thread_info;
+    }
+
+    lrq_tail                                = added_thread_info;
 
     return added_thread_info;
 }
