@@ -210,7 +210,7 @@ thread_info_t* lrq_delete( thread_info_t* thread_to_delete ) {
     cursor  = linear_ready_queue;
 
     // look for the thread info struct PRECEDING the one we want to delete
-    while ( ((cursor -> next) != thread_to_delete) && (cursor != NULL) ) {
+    while ( (cursor != NULL) && ((cursor -> next) != thread_to_delete) ) {
         cursor  = (cursor -> next);
     }
 
@@ -235,7 +235,7 @@ thread_info_t* lrq_search_id( int t_id ) {
     // search through the linear ready queue until the requested thread id is found
     // or, alternatively, return NULL, meaning the list was searched and a match
     // was not found
-    while ( ((cursor -> thread_id) != t_id) && (cursor != NULL) ) {
+    while ( (cursor != NULL) && ((cursor -> thread_id) != t_id) ) {
         cursor  = (cursor -> next);
     }
 
@@ -249,8 +249,8 @@ thread_info_t* srtf_search( thread_info_t* lrq_to_search ) {
     thread_info_t* cursor           = NULL;
 
     // start at the head of the LRQ
-    srt_thread_info = linear_ready_queue;
-    cursor          = linear_ready_queue;
+    srt_thread_info = lrq_to_search;
+    cursor          = lrq_to_search;
 
     // step through the list and select the thread with the shortest remaining time
     // or, in the case of a tie, the thread with the least currentTime
