@@ -23,3 +23,9 @@ void insert_per_pbs(Node_t* new_node);
 Node_t* search_list(int tid);
 Node_t* create_new_thread_node(float currentTime, int tid, int remainingTime, int tprio);
 void delete_first_node(Node_t* node_address);
+
+// Added functions
+thread_info_t* lrq_get( float cur_time, int t_id, int remain_time, int t_prio );
+thread_info_t* lrq_insert( float cur_time, t_id, remain_time, t_prio );
+thread_info_t* lrq_search_id( int t_id );
+thread_info_t* srtf_search( thread_info_t* lrq_to_search );
