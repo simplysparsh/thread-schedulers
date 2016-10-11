@@ -21,8 +21,8 @@
 
 void init_scheduler( int sched_type );
 int schedule_me( float currentTime, int tid, int remainingTime, int tprio );
-int num_preemeptions(int tid);
-float total_wait_time(int tid);
+int num_preemeptions( int tid );
+float total_wait_time( int tid );
 
 #define FCFS    0
 #define SRTF    1
@@ -42,9 +42,16 @@ struct thread_info {
 };
 
 // Global variables to be initialized by init_scheduler and used by schedule_me
-thread_info_t* linear_ready_queue;
-thread_info_t* lrq_tail;
+thread_info_t* linear_ready_queue   = NULL;
+thread_info_t* lrq_tail             = NULL;
 int scheduler_type;
+
+// Added functions
+thread_info_t* lrq_get( float cur_time, int t_id, int remain_time, int t_prio );
+thread_info_t* lrq_insert( float cur_time, int t_id, int remain_time, int t_prio );
+thread_info_t* lrq_delete( thread_info_t* thread_to_delete );
+thread_info_t* lrq_search_id( int t_id );
+thread_info_t* srtf_search( thread_info_t* lrq_to_search );
 
 // Global mutex lock
 pthread_mutex_t scheduler_lock;
@@ -149,7 +156,7 @@ float total_wait_time(int tid){
 
 // linear ready queue: get or insert if not exist in list
 thread_info_t* lrq_get( float cur_time, int t_id, int remain_time, int t_prio ) {
-    thread_info_t* temp_thread_info;
+    thread_info_t* temp_thread_info = NULL;
 
     // try finding the current thread in the linear ready queue
     temp_thread_info    = lrq_search_id( t_id );
@@ -167,8 +174,8 @@ thread_info_t* lrq_get( float cur_time, int t_id, int remain_time, int t_prio ) 
 }
 
 // add a thread info struct to a linear ready queue
-thread_info_t* lrq_insert( float cur_time, t_id, remain_time, t_prio ) {
-    thread_info_t* added_thread_info;
+thread_info_t* lrq_insert( float cur_time, int t_id, int remain_time, int t_prio ) {
+    thread_info_t* added_thread_info    = NULL;
 
     // if there is nothing in the queue, add the first item there
     if ( linear_ready_queue == NULL ) {
@@ -194,9 +201,33 @@ thread_info_t* lrq_insert( float cur_time, t_id, remain_time, t_prio ) {
     return added_thread_info;
 }
 
+// delete a thread info struct from a linear ready queue
+thread_info_t* lrq_delete( thread_info_t* thread_to_delete ) {
+    thread_info_t* next_thread_info = NULL;
+    thread_info_t* cursor           = NULL;
+
+    // start at the beginning of the LRQ
+    cursor  = linear_ready_queue;
+
+    // look for the thread info struct PRECEDING the one we want to delete
+    while ( ((cursor -> next) != thread_to_delete) && (cursor != NULL) ) {
+        cursor  = (cursor -> next);
+    }
+
+    // as long as there is something to work with, skip over the thread info
+    // struct to delete, then free that struct to delete
+    if (cursor != NULL) {
+        (cursor -> next)    = (thread_to_delete -> next);
+        next_thread_info    = (cursor -> next);
+        free( thread_to_delete );
+    }
+
+    return next_thread_info;
+}
+
 // search a linear ready queue for a specific thread id
 thread_info_t* lrq_search_id( int t_id ) {
-    thread_info_t* cursor;
+    thread_info_t* cursor   = NULL;
 
     // start at the head of the LRQ
     cursor  = linear_ready_queue;
@@ -214,8 +245,8 @@ thread_info_t* lrq_search_id( int t_id ) {
 // search a linear ready queue according to SRTF tiebreaking rules
 thread_info_t* srtf_search( thread_info_t* lrq_to_search ) {
     //compare pairs of nodes for tiebreak then continue
-    thread_info_t* srt_thread_info;
-    thread_info_t* cursor;
+    thread_info_t* srt_thread_info  = NULL;
+    thread_info_t* cursor           = NULL;
 
     // start at the head of the LRQ
     srt_thread_info = linear_ready_queue;
