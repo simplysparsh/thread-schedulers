@@ -45,6 +45,7 @@ struct thread_info {
 thread_info_t* linear_ready_queue   = NULL;
 thread_info_t* lrq_tail             = NULL;
 int scheduler_type;
+int globalTime						= -1;
 
 // Added functions
 thread_info_t* lrq_get( float cur_time, int t_id, int remain_time, int t_prio );
@@ -102,10 +103,6 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
                 pthread_cond_wait( &(current_thread_info -> turn_cond), &scheduler_lock );
             }
 
-            // when it is this thread's turn to run, schedule it to run at
-            // the current time (it is this thread's turn)
-            next_scheduled_time = currentTime;
-
             // if this thread is done running, tell the next thread to run
             if ( remainingTime == 0 ) {
                 lrq_delete( current_thread_info );
@@ -114,6 +111,8 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
                     next_thread_info    = srtf_search( linear_ready_queue );
                     pthread_cond_signal( &(next_thread_info -> turn_cond) );
                 }
+            } else {
+            	next_scheduled_time = ++globalTime;
             }
 
             break;
