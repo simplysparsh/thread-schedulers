@@ -94,7 +94,8 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
                     pthread_cond_signal( &(next_thread_info -> my_turn) );
                 }
             } else {
-                next_scheduled_time = ++globalTime;
+                //next_scheduled_time = ++globalTime;
+                globalTime++;
             }
 
             break;
@@ -315,6 +316,15 @@ Node_t* lrq_delete( Node_t* thread_to_delete ) {
     // start at the beginning of the LRQ
     cursor  = linear_ready_queue;
 
+    if ( cursor == thread_to_delete ) {
+    	linear_ready_queue	= (cursor -> link);
+    	if (lrq_tail == thread_to_delete) {
+    		lrq_tail = NULL;
+    	}
+    	free( cursor );
+    	return linear_ready_queue;
+    }
+
     // look for the thread info struct PRECEDING the one we want to delete
     while ( (cursor != NULL) && ((cursor -> link) != thread_to_delete) ) {
         cursor  = (cursor -> link);
@@ -325,6 +335,12 @@ Node_t* lrq_delete( Node_t* thread_to_delete ) {
     if (cursor != NULL) {
         (cursor -> link)    = (thread_to_delete -> link);
         next_thread_info    = (cursor -> link);
+
+        // adjust tail pointer if we delete the last item
+        if ( thread_to_delete == lrq_tail ) {
+        	lrq_tail	= cursor;
+        }
+
         free( thread_to_delete );
     }
 
