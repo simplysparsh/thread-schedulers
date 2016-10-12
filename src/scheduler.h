@@ -13,7 +13,7 @@ struct Node {		// [thread_info]
     int tid;            // [thread_id] thread id
     int tprio;          // [thread_priority] thread priority
     float currentTime;  // [arrival_time] time that a thread arrives
-    float waitTime		// [wait_time] time spent waiting
+    float waitTime;		// [wait_time] time spent waiting
     int remainingTime;  // [remaining_time] time a thread needs in order to finish
     int numPreemptions;	// number of times a thread was preempted
     Node_t* link;       // [next] pointer to another Node

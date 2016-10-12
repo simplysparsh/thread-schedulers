@@ -56,6 +56,9 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
     pthread_mutex_lock( &scheduler_lock );
 
     Node_t* current_thread_node = NULL;
+    int next_scheduled_time;
+    Node_t* current_thread_info  = NULL;
+    Node_t* next_thread_info     = NULL;
 
     //Insert elements as per the kind of scheduler
     current_thread_node = insert_to_list(currentTime, tid, remainingTime, tprio);
@@ -73,10 +76,6 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
             break;
 
         case SRTF:
-            int next_scheduled_time;
-            Node_t* current_thread_info  = NULL;
-            Node_t* next_thread_info     = NULL;
-
             // get a pointer to the current thread info struct
             // whether or not it already exists in the ready queue
             current_thread_info = lrq_get( currentTime, tid, remainingTime, tprio );
