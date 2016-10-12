@@ -38,6 +38,7 @@ void init_scheduler( int sched_type ) {
 
         case SRTF:
             linear_ready_queue  = NULL;
+            memset( pres, 0, sizeof(int));
             break;
 
         case PBS:
@@ -80,13 +81,19 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
             // whether or not it already exists in the ready queue
             current_thread_info = lrq_get( currentTime, tid, remainingTime, tprio );
 
+            if ( current_thread_info != srtf_search( linear_ready_queue ) ) {
             // if the current thread is not the lowest remaining time, wait
             while ( current_thread_info != srtf_search( linear_ready_queue ) ) {
                 pthread_cond_wait( &(current_thread_info -> my_turn), &scheduler_lock );
             }
+            	if ( current_thread_info -> remainingTime < current_thread_info -> maximumTime ) {
+            		pres[tid]++;
+            	}
+        	}
 
             // if this thread is done running, tell the next thread to run
             if ( remainingTime == 0 ) {
+                waits[tid] = globalTime - (current_thread_info -> maximumTime) - (current_thread_info -> startTime);
                 lrq_delete( current_thread_info );
 
                 if ( linear_ready_queue != NULL ) {
@@ -94,7 +101,8 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
                     pthread_cond_signal( &(next_thread_info -> my_turn) );
                 }
             } else {
-                //next_scheduled_time = ++globalTime;
+                //next_scheduled_time = ++globalTime; //here
+                
                 globalTime++;
             }
 
@@ -109,17 +117,15 @@ int schedule_me( float currentTime, int tid, int remainingTime, int tprio ) {
 }
 
 int num_preemeptions(int tid) {
-/*
-    Fill your code here
-*/
-    return -1;
+
+    return pres[tid];
 }
 
 float total_wait_time(int tid) {
 /*
     Fill your code here
 */
-    return -0.1;
+    return waits[tid] + 1.0;
 }
 
 /* Scheduler Functions */
@@ -290,7 +296,11 @@ Node_t* lrq_insert( float cur_time, int t_id, int remain_time, int t_prio ) {
     added_thread_info                       = malloc( sizeof( Node_t ) );
     added_thread_info -> tid                = t_id;
     added_thread_info -> currentTime        = cur_time;
+    added_thread_info -> waitTime			= 0;
+    added_thread_info -> startTime			= cur_time;
+    added_thread_info -> maximumTime		= remain_time;
     added_thread_info -> remainingTime      = remain_time;
+    added_thread_info -> numPreemptions		= 0;
     added_thread_info -> tprio              = t_prio;
     added_thread_info -> link               = NULL;
 

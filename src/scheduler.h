@@ -14,6 +14,8 @@ struct Node {		// [thread_info]
     int tprio;          // [thread_priority] thread priority
     float currentTime;  // [arrival_time] time that a thread arrives
     float waitTime;		// [wait_time] time spent waiting
+    float startTime;	// time the thread added to list
+    int maximumTime;	// max time a thread has to run
     int remainingTime;  // [remaining_time] time a thread needs in order to finish
     int numPreemptions;	// number of times a thread was preempted
     Node_t* link;       // [next] pointer to another Node
@@ -29,6 +31,8 @@ int globalTime				= -1;
 Node_t* linear_ready_queue	= NULL;
 Node_t* lrq_tail			= NULL;
 int scheduler_type			= 0;
+float waits[1024];
+int pres[1024];
 
 //Global mutex locks
 pthread_mutex_t scheduler_lock;
